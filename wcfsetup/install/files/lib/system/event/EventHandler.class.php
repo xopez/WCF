@@ -261,6 +261,17 @@ class EventHandler extends SingletonFactory
     }
 
     /**
+     * Calls fireAction() for the given event with the `:default` event name.
+     *
+     * @see EventHandler::fireAction()
+     * @since   5.5
+     */
+    public function fire(IEvent $event): void
+    {
+        $this->fireAction($event, ':default');
+    }
+
+    /**
      * Generates an unique name for an action.
      *
      * @param string $className
