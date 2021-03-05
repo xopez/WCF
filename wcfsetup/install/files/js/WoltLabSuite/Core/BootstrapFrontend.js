@@ -6,7 +6,7 @@
  * @license  GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
  * @module  WoltLabSuite/Core/BootstrapFrontend
  */
-define(["require", "exports", "tslib", "./BackgroundQueue", "./Bootstrap", "./Controller/Style/Changer", "./Controller/Popover", "./Ui/User/Ignore", "./Ui/Page/Header/Menu", "./Ui/Message/UserConsent"], function (require, exports, tslib_1, BackgroundQueue, Bootstrap, ControllerStyleChanger, ControllerPopover, UiUserIgnore, UiPageHeaderMenu, UiMessageUserConsent) {
+define(["require", "exports", "tslib", "./BackgroundQueue", "./Bootstrap", "./Controller/Style/Changer", "./Controller/Popover", "./Ui/User/Ignore", "./Ui/Page/Header/Menu", "./Ui/Page/Header/Search", "./Ui/Message/UserConsent"], function (require, exports, tslib_1, BackgroundQueue, Bootstrap, ControllerStyleChanger, ControllerPopover, UiUserIgnore, UiPageHeaderMenu, UiPageHeaderSearch, UiMessageUserConsent) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.setup = void 0;
@@ -16,6 +16,7 @@ define(["require", "exports", "tslib", "./BackgroundQueue", "./Bootstrap", "./Co
     ControllerPopover = tslib_1.__importStar(ControllerPopover);
     UiUserIgnore = tslib_1.__importStar(UiUserIgnore);
     UiPageHeaderMenu = tslib_1.__importStar(UiPageHeaderMenu);
+    UiPageHeaderSearch = tslib_1.__importStar(UiPageHeaderSearch);
     UiMessageUserConsent = tslib_1.__importStar(UiMessageUserConsent);
     /**
      * Initializes user profile popover.
@@ -42,6 +43,9 @@ define(["require", "exports", "tslib", "./BackgroundQueue", "./Bootstrap", "./Co
         options.backgroundQueue.url = window.WSC_API_URL + options.backgroundQueue.url.substr(window.WCF_PATH.length);
         Bootstrap.setup({ enableMobileMenu: true });
         UiPageHeaderMenu.init();
+        if (options.enableSearch) {
+            UiPageHeaderSearch.setup();
+        }
         if (options.styleChanger) {
             ControllerStyleChanger.setup();
         }

@@ -37,8 +37,6 @@ const _sidebars: HTMLElement[] = [];
 
 function init(): void {
   _enabled = true;
-
-  initSearchBar();
   initButtonGroupNavigation();
   initMessages();
   initMobileMenu();
@@ -47,44 +45,6 @@ function init(): void {
   DomChangeListener.add("WoltLabSuite/Core/Ui/Mobile", () => {
     initButtonGroupNavigation();
     initMessages();
-  });
-}
-
-function initSearchBar(): void {
-  const searchBar = document.getElementById("pageHeaderSearch")!;
-  const searchInput = document.getElementById("pageHeaderSearchInput")!;
-
-  let scrollTop: number | null = null;
-  EventHandler.add("com.woltlab.wcf.MainMenuMobile", "more", (data: MainMenuMorePayload) => {
-    if (data.identifier === "com.woltlab.wcf.search") {
-      data.handler.close();
-
-      if (Environment.platform() === "ios") {
-        scrollTop = document.body.scrollTop;
-        UiScreen.scrollDisable();
-      }
-
-      const pageHeader = document.getElementById("pageHeader")!;
-      searchBar.style.setProperty("top", `${pageHeader.offsetHeight}px`, "");
-      searchBar.classList.add("open");
-      searchInput.focus();
-
-      if (Environment.platform() === "ios") {
-        document.body.scrollTop = 0;
-      }
-    }
-  });
-
-  document.getElementById("main")!.addEventListener("click", () => {
-    if (searchBar) {
-      searchBar.classList.remove("open");
-    }
-
-    if (Environment.platform() === "ios" && scrollTop) {
-      UiScreen.scrollEnable();
-      document.body.scrollTop = scrollTop;
-      scrollTop = null;
-    }
   });
 }
 

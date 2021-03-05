@@ -6,14 +6,13 @@
  * @license  GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
  * @module  WoltLabSuite/Core/Ui/Mobile
  */
-define(["require", "exports", "tslib", "../Core", "../Dom/Change/Listener", "../Environment", "../Event/Handler", "./Alignment", "./CloseOverlay", "./Dropdown/Reusable", "./Page/Menu/Main", "./Page/Menu/User", "./Screen"], function (require, exports, tslib_1, Core, Listener_1, Environment, EventHandler, UiAlignment, CloseOverlay_1, UiDropdownReusable, Main_1, User_1, UiScreen) {
+define(["require", "exports", "tslib", "../Core", "../Dom/Change/Listener", "../Environment", "./Alignment", "./CloseOverlay", "./Dropdown/Reusable", "./Page/Menu/Main", "./Page/Menu/User", "./Screen"], function (require, exports, tslib_1, Core, Listener_1, Environment, UiAlignment, CloseOverlay_1, UiDropdownReusable, Main_1, User_1, UiScreen) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.removeShadow = exports.rebuildShadow = exports.disableShadow = exports.disable = exports.enableShadow = exports.enable = exports.setup = void 0;
     Core = tslib_1.__importStar(Core);
     Listener_1 = tslib_1.__importDefault(Listener_1);
     Environment = tslib_1.__importStar(Environment);
-    EventHandler = tslib_1.__importStar(EventHandler);
     UiAlignment = tslib_1.__importStar(UiAlignment);
     CloseOverlay_1 = tslib_1.__importDefault(CloseOverlay_1);
     UiDropdownReusable = tslib_1.__importStar(UiDropdownReusable);
@@ -33,7 +32,6 @@ define(["require", "exports", "tslib", "../Core", "../Dom/Change/Listener", "../
     const _sidebars = [];
     function init() {
         _enabled = true;
-        initSearchBar();
         initButtonGroupNavigation();
         initMessages();
         initMobileMenu();
@@ -41,37 +39,6 @@ define(["require", "exports", "tslib", "../Core", "../Dom/Change/Listener", "../
         Listener_1.default.add("WoltLabSuite/Core/Ui/Mobile", () => {
             initButtonGroupNavigation();
             initMessages();
-        });
-    }
-    function initSearchBar() {
-        const searchBar = document.getElementById("pageHeaderSearch");
-        const searchInput = document.getElementById("pageHeaderSearchInput");
-        let scrollTop = null;
-        EventHandler.add("com.woltlab.wcf.MainMenuMobile", "more", (data) => {
-            if (data.identifier === "com.woltlab.wcf.search") {
-                data.handler.close();
-                if (Environment.platform() === "ios") {
-                    scrollTop = document.body.scrollTop;
-                    UiScreen.scrollDisable();
-                }
-                const pageHeader = document.getElementById("pageHeader");
-                searchBar.style.setProperty("top", `${pageHeader.offsetHeight}px`, "");
-                searchBar.classList.add("open");
-                searchInput.focus();
-                if (Environment.platform() === "ios") {
-                    document.body.scrollTop = 0;
-                }
-            }
-        });
-        document.getElementById("main").addEventListener("click", () => {
-            if (searchBar) {
-                searchBar.classList.remove("open");
-            }
-            if (Environment.platform() === "ios" && scrollTop) {
-                UiScreen.scrollEnable();
-                document.body.scrollTop = scrollTop;
-                scrollTop = null;
-            }
         });
     }
     function initButtonGroupNavigation() {

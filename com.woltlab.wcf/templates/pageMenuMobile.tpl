@@ -47,13 +47,6 @@
 			{/hascontent}
 		{/if}
 
-		<li class="menuOverlayItemSpacer"></li>
-		<li class="menuOverlayItem" data-more="com.woltlab.wcf.search">
-			<a href="#" class="menuOverlayItemLink box24">
-				<span class="icon icon24 fa-search"></span>
-				<span class="menuOverlayItemTitle">{lang}wcf.global.search{/lang}</span>
-			</a>
-		</li>
 		<li class="menuOverlayTitle" id="pageMainMenuMobilePageOptionsTitle">{lang}wcf.menu.page.options{/lang}</li>
 		
 		{event name='menuItems'}

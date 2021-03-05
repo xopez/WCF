@@ -13,6 +13,7 @@ import * as ControllerStyleChanger from "./Controller/Style/Changer";
 import * as ControllerPopover from "./Controller/Popover";
 import * as UiUserIgnore from "./Ui/User/Ignore";
 import * as UiPageHeaderMenu from "./Ui/Page/Header/Menu";
+import * as UiPageHeaderSearch from "./Ui/Page/Header/Search";
 import * as UiMessageUserConsent from "./Ui/Message/UserConsent";
 
 interface BoostrapOptions {
@@ -20,6 +21,7 @@ interface BoostrapOptions {
     url: string;
     force: boolean;
   };
+  enableSearch: boolean;
   enableUserPopover: boolean;
   styleChanger: boolean;
 }
@@ -52,6 +54,10 @@ export function setup(options: BoostrapOptions): void {
 
   Bootstrap.setup({ enableMobileMenu: true });
   UiPageHeaderMenu.init();
+
+  if (options.enableSearch) {
+    UiPageHeaderSearch.setup();
+  }
 
   if (options.styleChanger) {
     ControllerStyleChanger.setup();

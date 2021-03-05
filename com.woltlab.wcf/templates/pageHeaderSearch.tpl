@@ -20,6 +20,11 @@
 
 {event name='settings'}
 
+{if (!OFFLINE || $__wcf->session->getPermission('admin.general.canViewPageDuringOfflineMode')) && (!FORCE_LOGIN || $__wcf->user->userID)}
+	<div id="pageHeaderMobileSearch" class="pageHeaderMobileSearch">
+		<!-- Placeholder for the mobile UI. -->
+	</div>
+{/if}
 <div id="pageHeaderSearch" class="pageHeaderSearch">
 	<form method="post" action="{@$__searchLink}">
 		<div id="pageHeaderSearchInputContainer" class="pageHeaderSearchInputContainer">
