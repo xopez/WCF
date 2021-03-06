@@ -38,6 +38,7 @@ interface ItemData {
 abstract class UiPageMenuAbstract {
   private readonly activeList: HTMLOListElement[] = [];
   protected readonly button: HTMLElement;
+  protected readonly container: HTMLElement;
   private depth = 0;
   private enabled = true;
   private readonly eventIdentifier: string;
@@ -66,7 +67,7 @@ abstract class UiPageMenuAbstract {
     EventHandler.add(this.eventIdentifier, "updateButtonState", this.updateButtonState.bind(this));
 
     this.menu.addEventListener("animationend", () => {
-      if (!this.menu.classList.contains("open")) {
+      if (!this.container.classList.contains("open")) {
         this.menu.querySelectorAll(".menuOverlayItemList").forEach((itemList) => {
           // force the main list to be displayed
           itemList.classList.remove("active", "hidden");
@@ -91,9 +92,25 @@ abstract class UiPageMenuAbstract {
     backdrop.className = "menuOverlayMobileBackdrop";
     backdrop.addEventListener("click", this.close.bind(this));
 
-    this.menu.insertAdjacentElement("afterend", backdrop);
+    this.container = document.createElement("div");
+    this.container.classList.add("menuOverlayMobileContainer");
+    this.container.dataset.elementId = elementId;
+    this.menu.insertAdjacentElement("beforebegin", this.container);
+
+    this.container.appendChild(this.menu);
+    this.container.appendChild(backdrop);
 
     this.menu.parentElement!.insertBefore(backdrop, this.menu.nextSibling);
+
+    // Forward clicks to the backdrop element.
+    this.container.addEventListener("click", (event) => {
+      if (event.target === this.container) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        backdrop.click();
+      }
+    });
 
     this.updateButtonState();
 
@@ -114,7 +131,7 @@ abstract class UiPageMenuAbstract {
       event.preventDefault();
     }
 
-    this.menu.classList.add("open");
+    this.container.classList.add("open");
     this.menu.classList.add("allowScroll");
     this.menu.children[0].classList.add("activeList");
 
@@ -135,8 +152,8 @@ abstract class UiPageMenuAbstract {
       event.preventDefault();
     }
 
-    if (this.menu.classList.contains("open")) {
-      this.menu.classList.remove("open");
+    if (this.container.classList.contains("open")) {
+      this.container.classList.remove("open");
 
       UiScreen.scrollEnable();
       UiScreen.pageOverlayClose();
@@ -193,7 +210,7 @@ abstract class UiPageMenuAbstract {
       let isLeftEdge: boolean;
       let isRightEdge: boolean;
 
-      const isOpen = this.menu.classList.contains("open");
+      const isOpen = this.container.classList.contains("open");
 
       // check whether we touch the edges of the menu
       if (appearsAt === "left") {
@@ -256,7 +273,7 @@ abstract class UiPageMenuAbstract {
       }
 
       // break if the menu did not even start opening
-      if (!this.menu.classList.contains("open")) {
+      if (!this.container.classList.contains("open")) {
         // reset
         touchStart = undefined;
         _androidTouching = "";
@@ -325,7 +342,7 @@ abstract class UiPageMenuAbstract {
 
       const movedVertically = Math.abs(touches[0].clientY - touchStart.y) > TouchPosition.MovedVertically;
 
-      let isOpen = this.menu.classList.contains("open");
+      let isOpen = this.container.classList.contains("open");
       if (!isOpen && movedFromEdge && !movedVertically) {
         // the menu is not yet open, but the user moved into the right direction
         this.open();

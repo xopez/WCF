@@ -44,7 +44,7 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
             EventHandler.add(this.eventIdentifier, "close", this.close.bind(this));
             EventHandler.add(this.eventIdentifier, "updateButtonState", this.updateButtonState.bind(this));
             this.menu.addEventListener("animationend", () => {
-                if (!this.menu.classList.contains("open")) {
+                if (!this.container.classList.contains("open")) {
                     this.menu.querySelectorAll(".menuOverlayItemList").forEach((itemList) => {
                         // force the main list to be displayed
                         itemList.classList.remove("active", "hidden");
@@ -64,8 +64,21 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
             const backdrop = document.createElement("div");
             backdrop.className = "menuOverlayMobileBackdrop";
             backdrop.addEventListener("click", this.close.bind(this));
-            this.menu.insertAdjacentElement("afterend", backdrop);
+            this.container = document.createElement("div");
+            this.container.classList.add("menuOverlayMobileContainer");
+            this.container.dataset.elementId = elementId;
+            this.menu.insertAdjacentElement("beforebegin", this.container);
+            this.container.appendChild(this.menu);
+            this.container.appendChild(backdrop);
             this.menu.parentElement.insertBefore(backdrop, this.menu.nextSibling);
+            // Forward clicks to the backdrop element.
+            this.container.addEventListener("click", (event) => {
+                if (event.target === this.container) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    backdrop.click();
+                }
+            });
             this.updateButtonState();
             if (Environment.platform() === "android") {
                 this.initializeAndroid();
@@ -81,7 +94,7 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
             if (event instanceof Event) {
                 event.preventDefault();
             }
-            this.menu.classList.add("open");
+            this.container.classList.add("open");
             this.menu.classList.add("allowScroll");
             this.menu.children[0].classList.add("activeList");
             UiScreen.scrollDisable();
@@ -96,8 +109,8 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
             if (event instanceof Event) {
                 event.preventDefault();
             }
-            if (this.menu.classList.contains("open")) {
-                this.menu.classList.remove("open");
+            if (this.container.classList.contains("open")) {
+                this.container.classList.remove("open");
                 UiScreen.scrollEnable();
                 UiScreen.pageOverlayClose();
                 _pageContainer.classList.remove("menuOverlay-" + this.menu.id);
@@ -141,7 +154,7 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
                 const touches = event.touches;
                 let isLeftEdge;
                 let isRightEdge;
-                const isOpen = this.menu.classList.contains("open");
+                const isOpen = this.container.classList.contains("open");
                 // check whether we touch the edges of the menu
                 if (appearsAt === "left") {
                     isLeftEdge = !isOpen && touches[0].clientX < 20 /* AtEdge */;
@@ -196,7 +209,7 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
                     return;
                 }
                 // break if the menu did not even start opening
-                if (!this.menu.classList.contains("open")) {
+                if (!this.container.classList.contains("open")) {
                     // reset
                     touchStart = undefined;
                     _androidTouching = "";
@@ -254,7 +267,7 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
                     movedFromEdge = touches[0].clientX < touchStart.x - 5 /* MovedHorizontally */;
                 }
                 const movedVertically = Math.abs(touches[0].clientY - touchStart.y) > 20 /* MovedVertically */;
-                let isOpen = this.menu.classList.contains("open");
+                let isOpen = this.container.classList.contains("open");
                 if (!isOpen && movedFromEdge && !movedVertically) {
                     // the menu is not yet open, but the user moved into the right direction
                     this.open();
