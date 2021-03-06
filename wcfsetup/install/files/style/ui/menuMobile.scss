@@ -107,6 +107,25 @@
 
 .menuOverlayMobileBackdrop {
 	flex: 0 0 50px;
+	position: relative;
+
+	&::before {
+		align-items: center;
+		background-color: $wcfHeaderMenuLinkBackground;
+		border-radius: 50%;
+		box-shadow: 0 0 10px rgba(0, 0, 0, .34);
+		content: $fa-var-times;
+		color: $wcfHeaderMenuLink;
+		display: flex;
+		font-family: FontAwesome;
+		font-size: 18px;
+		height: 40px;
+		justify-content: center;
+		left: 5px;
+		position: absolute;
+		top: 5px;
+		width: 40px;
+	}
 }
 
 .menuOverlayItemWrapper {
@@ -281,17 +300,4 @@ html[dir="rtl"] .menuOverlayItemLink.menuOverlayItemLinkMore::after {
 	left: 12px;
 	top: 50%;
 	transform: translateY(-50%);
-}
-
-.menuOverlayLogoWrapper {
-	flex: 1 1 auto;
-	padding: 5px;
-	display: flex;
-
-	.menuOverlayLogo {
-		flex: 1 1 auto;
-		background-size: contain;
-		background-repeat: no-repeat;
-		background-position: center;
-	}
 }

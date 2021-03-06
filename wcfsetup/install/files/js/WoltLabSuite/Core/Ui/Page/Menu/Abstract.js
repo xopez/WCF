@@ -39,7 +39,6 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
             this.button = document.querySelector(buttonSelector);
             this.button.addEventListener("click", callbackOpen);
             this.initItems();
-            this.initHeader();
             EventHandler.add(this.eventIdentifier, "open", callbackOpen);
             EventHandler.add(this.eventIdentifier, "close", this.close.bind(this));
             EventHandler.add(this.eventIdentifier, "updateButtonState", this.updateButtonState.bind(this));
@@ -389,32 +388,6 @@ define(["require", "exports", "tslib", "../../../Core", "../../../Environment", 
                 titleItem.appendChild(title);
                 itemList.insertBefore(titleItem, backLinkItem.nextElementSibling);
             }
-        }
-        /**
-         * Renders the menu item list header.
-         */
-        initHeader() {
-            const listItem = document.createElement("li");
-            listItem.className = "menuOverlayHeader";
-            const wrapper = document.createElement("span");
-            wrapper.className = "menuOverlayItemWrapper";
-            listItem.appendChild(wrapper);
-            const logoWrapper = document.createElement("span");
-            logoWrapper.className = "menuOverlayLogoWrapper";
-            wrapper.appendChild(logoWrapper);
-            const logo = document.createElement("span");
-            logo.className = "menuOverlayLogo";
-            const pageLogo = this.menu.dataset.pageLogo;
-            logo.style.setProperty("background-image", `url("${pageLogo}")`, "");
-            logoWrapper.appendChild(logo);
-            const closeLink = document.createElement("a");
-            closeLink.href = "#";
-            closeLink.className = "menuOverlayItemLinkIcon";
-            closeLink.innerHTML = '<span class="icon icon24 fa-times"></span>';
-            closeLink.addEventListener("click", this.close.bind(this));
-            wrapper.appendChild(closeLink);
-            const list = DomTraverse.childByClass(this.menu, "menuOverlayItemList");
-            list.insertBefore(listItem, list.firstElementChild);
         }
         /**
          * Hides an item list, return to the parent item list.
