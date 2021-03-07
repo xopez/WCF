@@ -715,6 +715,31 @@
 	}*/
 }
 
+@include screen-sm-md {
+	.pageHeaderPanel {
+		height: 50px;
+		left: 0;
+		position: absolute;
+		right: 0;
+		top: 0;
+
+		.layoutBoundary {
+			justify-content: space-between;
+			padding-left: 10px;
+		}
+
+		.mainMenu {
+			flex: 0 0 auto;
+			margin-left: 0;
+			order: 0;
+		}
+	}
+
+	.pageHeaderFacade .layoutBoundary {
+		padding: 0 50px;
+	}
+}
+
 @include screen-xs {
 	.pageHeaderPanel,
 	.pageHeaderFacade > .layoutBoundary {
