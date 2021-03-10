@@ -5,10 +5,15 @@ namespace wcf\data\user\ignore;
 use wcf\data\AbstractDatabaseObjectAction;
 use wcf\data\user\follow\UserFollow;
 use wcf\data\user\follow\UserFollowEditor;
+use wcf\data\user\User;
 use wcf\system\cache\runtime\UserProfileRuntimeCache;
 use wcf\system\exception\IllegalLinkException;
 use wcf\system\exception\PermissionDeniedException;
 use wcf\system\exception\UserInputException;
+use wcf\system\form\builder\data\processor\CustomFormDataProcessor;
+use wcf\system\form\builder\DialogFormDocument;
+use wcf\system\form\builder\field\RadioButtonFormField;
+use wcf\system\form\builder\IFormDocument;
 use wcf\system\user\storage\UserStorageHandler;
 use wcf\system\WCF;
 
@@ -26,6 +31,8 @@ use wcf\system\WCF;
  */
 class UserIgnoreAction extends AbstractDatabaseObjectAction
 {
+    protected $form;
+
     /**
      * Validates the 'ignore' action.
      */
@@ -42,6 +49,21 @@ class UserIgnoreAction extends AbstractDatabaseObjectAction
         if ($userProfile->getPermission('user.profile.cannotBeIgnored')) {
             throw new PermissionDeniedException();
         }
+
+        $this->readInteger('type', true, 'data');
+
+        if (!$this->parameters['data']['type']) {
+            $this->parameters['data']['type'] = UserIgnore::TYPE_BLOCK_DIRECT_CONTACT;
+        }
+
+        if (
+            !\in_array($this->parameters['data']['type'], [
+                UserIgnore::TYPE_BLOCK_DIRECT_CONTACT,
+                UserIgnore::TYPE_HIDE_MESSAGES,
+            ])
+        ) {
+            throw new UserInputException('type', 'invalid');
+        }
     }
 
     /**
@@ -51,12 +73,20 @@ class UserIgnoreAction extends AbstractDatabaseObjectAction
      */
     public function ignore()
     {
-        /** @var UserIgnore $ignore */
-        $ignore = UserIgnoreEditor::createOrIgnore([
-            'ignoreUserID' => $this->parameters['data']['userID'],
-            'time' => TIME_NOW,
-            'userID' => WCF::getUser()->userID,
-        ]);
+        $ignore = new UserIgnoreEditor(UserIgnore::getIgnore($this->parameters['data']['userID']));
+        if ($ignore->ignoreID) {
+            $ignore->update([
+                'type' => $this->parameters['data']['type'],
+                'time' => TIME_NOW,
+            ]);
+        } else {
+            $ignore = UserIgnoreEditor::createOrIgnore([
+                'ignoreUserID' => $this->parameters['data']['userID'],
+                'type' => $this->parameters['data']['type'],
+                'time' => TIME_NOW,
+                'userID' => WCF::getUser()->userID,
+            ]);
+        }
 
         if ($ignore !== null) {
             UserStorageHandler::getInstance()->reset([WCF::getUser()->userID], 'ignoredUserIDs');
@@ -119,6 +149,100 @@ class UserIgnoreAction extends AbstractDatabaseObjectAction
         }
 
         return ['isIgnoredUser' => 0];
+    }
+
+    public function validateGetDialog()
+    {
+        $this->readInteger('userID');
+    }
+
+    public function getDialog()
+    {
+        $form = $this->getForm();
+
+        return [
+            'dialog' => $form->getHtml(),
+            'formId' => $form->getId(),
+        ];
+    }
+
+    public function validateSubmitDialog()
+    {
+        $this->readString('formId');
+        $this->readInteger('userID');
+
+        $this->getForm()->requestData($this->parameters['data'] ?? []);
+        $this->getForm()->readValues();
+    }
+
+    public function submitDialog()
+    {
+        $this->getForm()->validate();
+
+        if ($this->getForm()->hasValidationErrors()) {
+            return [
+                'dialog' => $this->getForm()->getHtml(),
+                'formId' => $this->getForm()->getId(),
+            ];
+        }
+
+        $formData = $this->getForm()->getData();
+
+        if ($formData['data']['type'] === UserIgnore::TYPE_NO_IGNORE) {
+            return (new self([], 'unignore', [
+                'data' => [
+                    'userID' => $this->parameters['userID'],
+                ],
+            ]))->executeAction()['returnValues'];
+        } else {
+            return (new self([], 'ignore', [
+                'data' => [
+                    'userID' => $this->parameters['userID'],
+                    'type' => $formData['data']['type'],
+                ],
+            ]))->executeAction()['returnValues'];
+        }
+    }
+
+    protected function getForm(): IFormDocument
+    {
+        if ($this->form === null) {
+            $id = 'userIgnore';
+            $this->form = DialogFormDocument::create($id)
+                ->ajax()
+                ->prefix($id);
+
+            $ignore = UserIgnore::getIgnore($this->parameters['userID']);
+
+            $this->form->appendChildren([
+                RadioButtonFormField::create('type')
+                    ->label(WCF::getLanguage()->get('wcf.user.ignore.type'))
+                    ->options([
+                        UserIgnore::TYPE_NO_IGNORE => WCF::getLanguage()
+                            ->get('wcf.user.ignore.type.noIgnore'),
+                        UserIgnore::TYPE_BLOCK_DIRECT_CONTACT => WCF::getLanguage()
+                            ->get('wcf.user.ignore.type.blockDirectContact'),
+                        UserIgnore::TYPE_HIDE_MESSAGES => WCF::getLanguage()
+                            ->get('wcf.user.ignore.type.hideMessages'),
+                    ])
+                    ->value($ignore->type ?: 0),
+            ]);
+
+            $this->form->getDataHandler()->addProcessor(
+                new CustomFormDataProcessor(
+                    'type',
+                    static function (IFormDocument $document, array $parameters) {
+                        $parameters['data']['type'] = \intval($parameters['data']['type']);
+
+                        return $parameters;
+                    }
+                )
+            );
+
+            $this->form->build();
+        }
+
+        return $this->form;
     }
 
     /**

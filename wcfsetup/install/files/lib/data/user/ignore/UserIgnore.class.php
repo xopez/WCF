@@ -20,6 +20,12 @@ use wcf\system\WCF;
  */
 class UserIgnore extends DatabaseObject
 {
+    public const TYPE_NO_IGNORE = 0;
+
+    public const TYPE_BLOCK_DIRECT_CONTACT = 1;
+
+    public const TYPE_HIDE_MESSAGES = 2;
+
     /**
      * Returns a UserIgnore object for given ignored user id.
      *

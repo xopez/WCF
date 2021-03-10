@@ -19,6 +19,7 @@ use wcf\system\database\table\column\NotNullInt10DatabaseTableColumn;
 use wcf\system\database\table\column\NotNullVarchar255DatabaseTableColumn;
 use wcf\system\database\table\column\ObjectIdDatabaseTableColumn;
 use wcf\system\database\table\column\TextDatabaseTableColumn;
+use wcf\system\database\table\column\TinyintDatabaseTableColumn;
 use wcf\system\database\table\column\VarbinaryDatabaseTableColumn;
 use wcf\system\database\table\DatabaseTable;
 use wcf\system\database\table\DatabaseTableChangeProcessor;
@@ -115,6 +116,14 @@ $tables = [
     PartialDatabaseTable::create('wcf1_user_group')
         ->columns([
             DefaultFalseBooleanDatabaseTableColumn::create('requireMultifactor'),
+        ]),
+
+    PartialDatabaseTable::create('wcf1_user_ignore')
+        ->columns([
+            TinyintDatabaseTableColumn::create('type')
+                ->length(1)
+                ->notNull()
+                ->defaultValue(1),
         ]),
 
     DatabaseTable::create('wcf1_user_multifactor')
