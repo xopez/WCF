@@ -134,13 +134,10 @@
 	$(function() {
 		WCF.Language.addObject({
 			'wcf.user.button.follow': '{jslang}wcf.user.button.follow{/jslang}',
-			'wcf.user.button.ignore': '{jslang}wcf.user.button.ignore{/jslang}',
 			'wcf.user.button.unfollow': '{jslang}wcf.user.button.unfollow{/jslang}',
-			'wcf.user.button.unignore': '{jslang}wcf.user.button.unignore{/jslang}'
 		});
 		
 		new WCF.User.Action.Follow($('.userList > li'));
-		new WCF.User.Action.Ignore($('.userList > li'));
 		
 		new WCF.Search.User('#searchUsername', function(data) {
 			var $link = '{link controller='User' id=2147483646 title='wcfTitlePlaceholder' encode=false}{/link}';
